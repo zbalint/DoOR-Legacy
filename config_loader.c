@@ -78,9 +78,13 @@ ConfigLine *get_config_line_by_key(char *key) {
 
 int load_config() {
     char *configDirectory = get_config_directory();
+    if (is_installed() != 0) {
+        printf("DoOR does not installed on this system.\n");
+        return 1;
+    }
     if (configDirectory == NULL) {
         printf("Error\n");
-        return 0;
+        return 1;
     }
     char *configFilePath = malloc(strlen(configDirectory) + strlen("default.conf") + 1);
     char *line = NULL;

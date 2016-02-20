@@ -9,6 +9,8 @@ char *get_current_directory();
 
 void create_project_config();
 
+int is_installed();
+
 void install_door();
 
 void uninstall_door();

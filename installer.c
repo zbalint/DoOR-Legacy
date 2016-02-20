@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <pwd.h>
 #include <string.h>
+#include <dirent.h>
 
 char *rootDirectory = NULL;
 char *confDirectory = NULL;
@@ -46,6 +47,14 @@ char *get_current_directory() {
     }
 
     return currentDirectory;
+}
+
+int is_installed() {
+    DIR *rootDir = opendir(get_root_directory());
+    if (rootDir) {
+        return 0;
+    }
+    return 1;
 }
 
 void create_directories() {
