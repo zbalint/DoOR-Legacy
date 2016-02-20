@@ -16,7 +16,6 @@ void int_handler(int sig);
 
 int main(int argc, char *argv[]) {
     atexit(shutdown);
-
     signal(SIGINT, int_handler);
 
     if (argc > 1) {
@@ -26,6 +25,8 @@ int main(int argc, char *argv[]) {
             show_help();
         } else if (strcmp(argv[1], "install") == 0) {
             install_door();
+        } else if (strcmp(argv[1], "init") == 0) {
+            create_project_config();
         } else {
             show_usage();
         }
@@ -37,7 +38,6 @@ int main(int argc, char *argv[]) {
 }
 
 void shutdown() {
-    printf("Hello\n");
 }
 
 void int_handler(int sig) {
@@ -51,6 +51,8 @@ void show_version() {
 void show_usage() {
     printf("Usage: door -v | --version     : print version\n");
     printf("       door -h | --help        : print help\n");
+    printf("       door install            : install door\n");
+    printf("       door init               : create project config in current directory\n");
 }
 
 void show_help() {

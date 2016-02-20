@@ -66,8 +66,8 @@ void *mallocgc(size_t size) {
         new->next = NULL;
         new->prev = NULL;
     } else {
-        new->next = head;
         head->prev = new;
+        new->next = head;
         head = new;
         new->prev = NULL;
     }
@@ -76,7 +76,8 @@ void *mallocgc(size_t size) {
 }
 
 void freegc(void *ptr) {
-    MemoryNode *iterator;
+    MemoryNode *iterator = NULL;
+    int found = 1;
 
     if (ptr == NULL) {
         return;
@@ -92,8 +93,15 @@ void freegc(void *ptr) {
             iterator = tail;
     } else {
         for (iterator = head; iterator->next != NULL; iterator = iterator->next)
-            if (iterator->ptr == ptr)
+            if (iterator->ptr == ptr) {
+                found = 0;
                 break;
+            }
+    }
+
+    if (found == 0 && iterator != ptr) {
+        free(ptr);
+        return;
     }
 
     if (head == iterator && tail == iterator) {
