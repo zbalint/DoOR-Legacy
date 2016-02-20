@@ -3,9 +3,10 @@ project(DoOR)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c11")
 
-set(SOURCE_FILES main.c ramdisk.c ramdisk.h)
+set(SOURCE_FILES main.c stdgc.c stdgc.h ramdisk.c ramdisk.h config_loader.c config_loader.h installer.c installer.c installer.h)
 add_executable(DoOR ${SOURCE_FILES})
 
+add_definitions(-DVERSION="0.0.1")
 
 exec_program(
         "git"
@@ -17,6 +18,6 @@ string(REGEX MATCH "[0-9]+" COMMIT_COUNT ${VERSION})
 string(REGEX MATCH "-g.*$" VERSION_SHA1 ${VERSION})
 string(REGEX REPLACE "[-g]" "" VERSION_SHA1 ${VERSION_SHA1})
 
-add_definitions(-DVERSION="0.0.1")
+
 add_definitions(-DCOMMIT_NUMBER="${COMMIT_COUNT}")
 add_definitions(-DGIT_SHA1="${VERSION_SHA1}")
