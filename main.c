@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 #include "installer.h"
 #include "config_loader.h"
 #include "ramdisk.h"
@@ -20,14 +21,13 @@ void shutdown();
 
 void int_handler(int sig);
 
+void sync_loop();
+
 void bootstrap();
 
 int main(int argc, char *argv[]) {
     atexit(shutdown);
     signal(SIGINT, int_handler);
-
-//    mount_disk("/home/balint/MountTest", "32");
-//    umount_disk("/home/balint/MountTest");
 
     if (argc > 1) {
         if ((strcmp(argv[1], "-v") == 0) || (strcmp(argv[1], "--version") == 0)) {
@@ -43,6 +43,9 @@ int main(int argc, char *argv[]) {
                     create_project_config();
                 } else if (strcmp(argv[1], "start") == 0) {
                     bootstrap();
+                    if (strcmp(get_property("autoSave"), "true") == 0) {
+                        sync_loop();
+                    }
                 } else if (strcmp(argv[1], "stop") == 0) {
 
                 } else {
@@ -62,16 +65,25 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+void sync_loop() {
+    while (1) {
+        int ret = sync_directory(get_property("projectName"));
+        if (WIFSIGNALED(ret) &&
+            (WTERMSIG(ret) == SIGINT || WTERMSIG(ret) == SIGQUIT))
+            break;
+        sleep((u_int) atol(get_property("syncInterval")));
+    }
+}
+
 void bootstrap() {
     if (is_root_user() == 0) {
         load_config();
         mount_ramdisk();
         start_sync(get_property("projectName"));
-
-        getchar();
         started = 1;
     } else {
         printf("You should run 'door start' as root\n");
+        return;
     }
 }
 
@@ -79,12 +91,15 @@ void shutdown() {
     if (started != 0 && is_root_user() == 0) {
         stop_sync(get_property("projectName"));
         umount_ramdisk();
+        started = 0;
     }
 
     free_on_exit();
 }
 
 void int_handler(int sig) {
+    printf("\n");
+    shutdown();
     exit(0);
 }
 

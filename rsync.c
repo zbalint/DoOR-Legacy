@@ -61,7 +61,7 @@ int run_sync(char *projectName, char *syncParams, int invert) {
 }
 
 int sync_directory(char *projectName) {
-    run_sync(projectName, "-av --delete --recursive --force", 1);
+    run_sync(projectName, "-av --delete --recursive --force", 0);
 }
 
 int start_sync(char *projectName) {
