@@ -3,7 +3,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <pwd.h>
 #include <string.h>
 #include <dirent.h>
 
@@ -11,13 +10,14 @@ char *rootDirectory = NULL;
 char *confDirectory = NULL;
 char *currentDirectory = NULL;
 
-char *get_root_directory() {
-    struct passwd *pw = getpwuid(getuid());
+char *mountDirectory = NULL;
 
+char *get_root_directory() {
     if (rootDirectory == NULL) {
-        rootDirectory = (char *) malloc(sizeof(pw->pw_dir) + sizeof("/.door/"));
+        char *home = getenv("HOME");
+        rootDirectory = (char *) malloc(sizeof(home) + sizeof("/.door/"));
         rootDirectory[0] = '\0';
-        strcat(rootDirectory, pw->pw_dir);
+        strcat(rootDirectory, home);
         strcat(rootDirectory, "/.door/");
     }
 
@@ -29,7 +29,7 @@ char *get_config_directory() {
     if (confDirectory == NULL) {
         confDirectory = (char *) malloc(strlen(get_root_directory()) + strlen("conf/") + 1);
         confDirectory[0] = '\0';
-        strcat(confDirectory, rootDirectory);
+        strcat(confDirectory, get_root_directory());
         strcat(confDirectory, "conf/");
     }
     return confDirectory;
@@ -49,6 +49,16 @@ char *get_current_directory() {
     return currentDirectory;
 }
 
+char *get_mount_directory() {
+    if (mountDirectory == NULL) {
+        mountDirectory = (char *) malloc(strlen(get_root_directory()) + strlen("mount/") + 1);
+        mountDirectory[0] = '\0';
+        strcat(mountDirectory, get_root_directory());
+        strcat(mountDirectory, "mount/");;
+    }
+    return mountDirectory;
+}
+
 int is_installed() {
     DIR *rootDir = opendir(get_root_directory());
     if (rootDir) {
@@ -63,7 +73,7 @@ void create_directories() {
     char *binDirectory = (char *) malloc(strlen(rootDirectory) + strlen("bin/") + 1);
     char *logsDirectory = (char *) malloc(strlen(rootDirectory) + strlen("logs/") + 1);
     char *toolsDirectory = (char *) malloc(strlen(rootDirectory) + strlen("tools/") + 1);
-    char *mountDirectory = (char *) malloc(strlen(rootDirectory) + strlen("mount/") + 1);
+    mountDirectory = get_mount_directory();
     confDirectory = get_config_directory();
 
     binDirectory[0] = '\0';
@@ -77,10 +87,6 @@ void create_directories() {
     toolsDirectory[0] = '\0';
     strcat(toolsDirectory, rootDirectory);
     strcat(toolsDirectory, "tools/");
-
-    mountDirectory[0] = '\0';
-    strcat(mountDirectory, rootDirectory);
-    strcat(mountDirectory, "mount/");
 
     printf("Installing DoOR to %s\n", rootDirectory);
 
@@ -119,7 +125,7 @@ void create_directories() {
             printf("error\n");
 
     } else {
-        printf("\nSomething went wrong.\n");
+        printf("\nAlready installed on this system.\n");
     }
 }
 

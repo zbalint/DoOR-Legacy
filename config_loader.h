@@ -7,4 +7,10 @@
 
 int load_config();
 
+void show_loaded_config();
+
+char *get_property(char *key);
+
+char *get_username();
+
 #endif //DOOR_CONFIG_LOADER_H

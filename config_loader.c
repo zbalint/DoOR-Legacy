@@ -76,6 +76,23 @@ ConfigLine *get_config_line_by_key(char *key) {
     return NULL;
 }
 
+char *get_property(char *key) {
+    ConfigLine *line = get_config_line_by_key(key);
+    if (line != NULL)
+        return line->value;
+    else
+        return NULL;
+}
+
+char *get_username() {
+    char *username = getenv("USER");
+    if (strcmp(username, "root") == 0) {
+        return getenv("SUDO_USER");
+    } else {
+        return getenv("USER");
+    }
+}
+
 int load_config() {
     char *configDirectory = get_config_directory();
     if (is_installed() != 0) {
@@ -89,7 +106,6 @@ int load_config() {
     char *configFilePath = malloc(strlen(configDirectory) + strlen("default.conf") + 1);
     char *line = NULL;
     size_t lineLength = 0;
-    ssize_t read = 0;
 
     if (configFilePath == NULL) {
         return 1;
@@ -102,7 +118,7 @@ int load_config() {
     printf("Loading default configuration... ");
     FILE *configFile = fopen(configFilePath, "r");
     if (configFile != NULL) {
-        while ((read = getline(&line, &lineLength, configFile)) != -1) {
+        while (getline(&line, &lineLength, configFile) != -1) {
             ConfigLine *configLine = new_config_line(line);
             add_config_node(configLine);
         }
@@ -120,13 +136,17 @@ int load_config() {
 
     configFile = fopen(projectConfigFile, "r");
     if (configFile != NULL) {
-        while ((read = getline(&line, &lineLength, configFile)) != -1) {
+        while (getline(&line, &lineLength, configFile) != -1) {
             ConfigLine *tempLine = new_config_line(line);
             ConfigLine *currentLine = get_config_line_by_key(tempLine->key);
 
             if (currentLine != NULL) {
-                if (strcmp(tempLine->value, "default") != 0)
+                if (strcmp(tempLine->value, "default") != 0) {
                     currentLine->value = tempLine->value;
+                    if (strcmp(tempLine->key, "modules") == 0) {
+                        //TODO write here some module name parser logic
+                    }
+                }
             } else {
                 ConfigLine *configLine = new_config_line(line);
                 add_config_node(configLine);
@@ -139,11 +159,9 @@ int load_config() {
     }
 }
 
-void showLoadedConfig() {
+void show_loaded_config() {
     ConfigNode *iterator = head;
-    printf("\n********************LOADED CONFIG********************\n");
     for (iterator; iterator != NULL; iterator = iterator->next) {
         printf("%s = %s\n", iterator->configLine->key, iterator->configLine->value);
     }
-    printf("********************LOADED CONFIG********************\n");
 }

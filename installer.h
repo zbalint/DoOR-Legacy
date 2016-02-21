@@ -7,6 +7,8 @@ char *get_config_directory();
 
 char *get_current_directory();
 
+char *get_mount_directory();
+
 void create_project_config();
 
 int is_installed();
