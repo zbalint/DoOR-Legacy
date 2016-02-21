@@ -84,21 +84,16 @@ char *get_property(char *key) {
         return NULL;
 }
 
-char *get_username() {
-    char *username = getenv("USER");
-    if (strcmp(username, "root") == 0) {
-        return getenv("SUDO_USER");
-    } else {
-        return getenv("USER");
-    }
-}
-
 int is_root_user() {
     if (strcmp(getenv("USER"), "root") == 0) {
         return 0;
     } else {
         return 1;
     }
+}
+
+int get_auto_save() {
+    return strcmp(get_property("autoSave"), "true");
 }
 
 int load_config() {
@@ -116,6 +111,7 @@ int load_config() {
     size_t lineLength = 0;
 
     if (configFilePath == NULL) {
+        printf("Error\n");
         return 1;
     }
 
@@ -162,8 +158,10 @@ int load_config() {
         }
         fclose(configFile);
         printf("done\n");
+        return 0;
     } else {
         printf("error\n");
+        return 1;
     }
 }
 

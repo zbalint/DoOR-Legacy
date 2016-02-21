@@ -85,3 +85,11 @@ int umount_ramdisk() {
     }
     return 0;
 }
+
+int is_mounted(char *mountPoint) {
+    char *mountPointCommand = malloc(strlen("mountpoint -q ") + strlen(mountPoint));
+    mountPointCommand[0] = '\0';
+    strcpy(mountPointCommand, "mountpoint -q ");
+    strcat(mountPointCommand, mountPoint);
+    return system(mountPointCommand);
+}

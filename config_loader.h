@@ -11,7 +11,7 @@ void show_loaded_config();
 
 char *get_property(char *key);
 
-char *get_username();
+int get_auto_save();
 
 int is_root_user();
 

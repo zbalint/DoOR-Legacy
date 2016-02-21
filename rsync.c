@@ -4,6 +4,7 @@
 #include "stdgc.h"
 #include "installer.h"
 #include "config_loader.h"
+#include "ramdisk.h"
 
 char *get_log_file_name() {
     char *projectName = get_property("projectName");
@@ -57,18 +58,22 @@ int run_sync(char *projectName, char *syncParams, int invert) {
     } else {
         syncCommand = get_sync_command(syncParams, destination, source, logDirectory);
     }
-    return system(syncCommand);
+    if (is_mounted(destination) == 0) {
+        return system(syncCommand);
+    } else {
+        return 1;
+    }
 }
 
 int sync_directory(char *projectName) {
-    run_sync(projectName, "-av --delete --recursive --force", 0);
+    return run_sync(projectName, "-av --delete --recursive --force", 0);
 }
 
 int start_sync(char *projectName) {
-    run_sync(projectName, "-av", 0);
+    return run_sync(projectName, "-av", 0);
 }
 
 int stop_sync(char *projectName) {
-    run_sync(projectName, "-av --delete --recursive --force", 1);
+    return run_sync(projectName, "-av --delete --recursive --force", 1);
 }
 
