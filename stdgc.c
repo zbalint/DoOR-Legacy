@@ -53,7 +53,7 @@ void init_mallocgc() {
 }
 
 void *mallocgc(size_t size) {
-    MemoryNode *new;
+    MemoryNode *newNode;
     void *ptr;
 
     ptr = malloc(size);
@@ -61,27 +61,27 @@ void *mallocgc(size_t size) {
         return NULL;
     }
 
-    new = (MemoryNode *) malloc(sizeof(MemoryNode));
-    if (new == NULL) {
+    newNode = (MemoryNode *) malloc(sizeof(MemoryNode));
+    if (newNode == NULL) {
         abort();
     }
 
-    new->ptr = ptr;
+    newNode->ptr = ptr;
 
     if (head == NULL) {
         init_mallocgc();
-        head = new;
-        tail = new;
-        new->next = NULL;
-        new->prev = NULL;
+        head = newNode;
+        tail = newNode;
+        newNode->next = NULL;
+        newNode->prev = NULL;
     } else {
-        head->prev = new;
-        new->next = head;
-        head = new;
-        new->prev = NULL;
+        head->prev = newNode;
+        newNode->next = head;
+        head = newNode;
+        newNode->prev = NULL;
     }
 
-    return new->ptr;
+    return newNode->ptr;
 }
 
 void freegc(void *ptr) {
