@@ -10,6 +10,7 @@ char *rootDirectory = NULL;
 char *confDirectory = NULL;
 char *currentDirectory = NULL;
 
+char *logsDirectory = NULL;
 char *mountDirectory = NULL;
 
 char *get_root_directory() {
@@ -38,6 +39,7 @@ char *get_config_directory() {
 char *get_current_directory() {
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        cwd[strlen(cwd)] = '/';
         cwd[strlen(cwd)] = '\0';
 
         if (currentDirectory == NULL) {
@@ -47,6 +49,17 @@ char *get_current_directory() {
     }
 
     return currentDirectory;
+}
+
+char *get_logs_directory() {
+    if (logsDirectory == NULL) {
+        logsDirectory = (char *) malloc(strlen(get_root_directory()) + strlen("logs/") + 1);
+        logsDirectory[0] = '\0';
+        strcat(logsDirectory, get_root_directory());
+        strcat(logsDirectory, "logs/");
+    }
+
+    return logsDirectory;
 }
 
 char *get_mount_directory() {
@@ -71,7 +84,7 @@ void create_directories() {
     rootDirectory = get_root_directory();
 
     char *binDirectory = (char *) malloc(strlen(rootDirectory) + strlen("bin/") + 1);
-    char *logsDirectory = (char *) malloc(strlen(rootDirectory) + strlen("logs/") + 1);
+    logsDirectory = get_logs_directory();
     char *toolsDirectory = (char *) malloc(strlen(rootDirectory) + strlen("tools/") + 1);
     mountDirectory = get_mount_directory();
     confDirectory = get_config_directory();
@@ -79,10 +92,6 @@ void create_directories() {
     binDirectory[0] = '\0';
     strcat(binDirectory, rootDirectory);
     strcat(binDirectory, "bin/");
-
-    logsDirectory[0] = '\0';
-    strcat(logsDirectory, rootDirectory);
-    strcat(logsDirectory, "logs/");
 
     toolsDirectory[0] = '\0';
     strcat(toolsDirectory, rootDirectory);

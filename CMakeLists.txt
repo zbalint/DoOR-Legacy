@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
-project(DoOR)
+project(door)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c11")
 
-set(SOURCE_FILES main.c stdgc.c stdgc.h ramdisk.c ramdisk.h config_loader.c config_loader.h installer.c installer.c installer.h)
-add_executable(DoOR ${SOURCE_FILES})
+set(SOURCE_FILES main.c stdgc.c stdgc.h ramdisk.c ramdisk.h config_loader.c config_loader.h installer.c installer.c installer.h rsync.c rsync.h)
+add_executable(door ${SOURCE_FILES})
 
 add_definitions(-DVERSION="0.0.1")
 

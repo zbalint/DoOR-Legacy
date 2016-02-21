@@ -13,4 +13,6 @@ char *get_property(char *key);
 
 char *get_username();
 
+int is_root_user();
+
 #endif //DOOR_CONFIG_LOADER_H

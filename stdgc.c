@@ -8,6 +8,14 @@
 #undef free
 #endif
 
+#define MANUAL_GC = 1
+
+#ifdef MANUAL_GC
+static int is_auto_mode = 1;
+#else
+static int is_auto_mode = 0;
+#endif
+
 typedef struct MemoryNode {
     struct MemoryNode *prev;
     void *ptr;
@@ -40,7 +48,8 @@ void free_on_exit() {
 }
 
 void init_mallocgc() {
-    atexit(free_on_exit);
+    if (is_auto_mode == 0)
+        atexit(free_on_exit);
 }
 
 void *mallocgc(size_t size) {

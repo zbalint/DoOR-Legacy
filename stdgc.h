@@ -8,6 +8,8 @@
 #define free(P) freegc(P)
 #endif //DEBUGMALLOC_H
 
+void free_on_exit();
+
 void *mallocgc(size_t size);
 
 void freegc(void *ptr);

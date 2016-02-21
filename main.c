@@ -5,6 +5,10 @@
 #include "installer.h"
 #include "config_loader.h"
 #include "ramdisk.h"
+#include "rsync.h"
+#include "stdgc.h"
+
+static int started = 0;
 
 void show_version();
 
@@ -59,13 +63,25 @@ int main(int argc, char *argv[]) {
 }
 
 void bootstrap() {
-    load_config();
-    printf("Bootstrapping project %s....\n", get_property("projectName"));
-    mount_ramdisk();
-    umount_ramdisk();
+    if (is_root_user() == 0) {
+        load_config();
+        mount_ramdisk();
+        start_sync(get_property("projectName"));
+
+        getchar();
+        started = 1;
+    } else {
+        printf("You should run 'door start' as root\n");
+    }
 }
 
 void shutdown() {
+    if (started != 0 && is_root_user() == 0) {
+        stop_sync(get_property("projectName"));
+        umount_ramdisk();
+    }
+
+    free_on_exit();
 }
 
 void int_handler(int sig) {

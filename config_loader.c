@@ -93,6 +93,14 @@ char *get_username() {
     }
 }
 
+int is_root_user() {
+    if (strcmp(getenv("USER"), "root") == 0) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 int load_config() {
     char *configDirectory = get_config_directory();
     if (is_installed() != 0) {
