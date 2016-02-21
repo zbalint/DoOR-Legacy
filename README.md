@@ -28,6 +28,7 @@ $ cd DoOR
 $ cmake .
 $ make
 $ ./door install
+$ sudo ln -s ~/.door/bin/door /usr/bin/door
 ```
 
 License

@@ -195,7 +195,17 @@ void create_project_config() {
     }
 }
 
+void copy_door_to_bin() {
+    printf("Copying door to ~/.door/bin... ");
+    if (system("cp ./door ~/.door/bin") == 0) {
+        printf("done\n");
+    } else {
+        printf("error\n");
+    }
+}
+
 void install_door() {
     create_directories();
     create_default_config();
+    copy_door_to_bin();
 }
