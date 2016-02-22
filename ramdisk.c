@@ -32,19 +32,16 @@ int umount_disk(char *target) {
 }
 
 char *get_mount_point(char *projectName) {
-    if (mountPoint == NULL) {
-        char *mountDirectory = get_mount_directory();
-        mountPoint = malloc(strlen(mountDirectory) + strlen(projectName) + strlen("/") + 1);
-        mountPoint[0] = '\0';
-        strcpy(mountPoint, mountDirectory);
-        strcat(mountPoint, projectName);
-        strcat(mountPoint, "/");
-    }
+    char *mountDirectory = get_mount_directory();
+    mountPoint = malloc(strlen(mountDirectory) + strlen(projectName) + strlen("/") + 1);
+    mountPoint[0] = '\0';
+    strcpy(mountPoint, mountDirectory);
+    strcat(mountPoint, projectName);
+    strcat(mountPoint, "/");
     return mountPoint;
 }
 
-int mount_ramdisk() {
-    char *projectName = get_property("projectName");
+int mount_ramdisk(char *projectName, char *projectSize) {
     mountPoint = get_mount_point(projectName);
 
     printf("Creating mount point for %s... ", projectName);
@@ -55,8 +52,15 @@ int mount_ramdisk() {
         return 1;
     }
 
+    char *diskSize;
+    if (projectSize == NULL) {
+        diskSize = get_property("diskSize");
+    } else {
+        diskSize = projectSize;
+    }
+
     printf("Mounting %s... ", mountPoint);
-    if (mount_disk(mountPoint, get_property("diskSize")) == 0) {
+    if (mount_disk(mountPoint, diskSize) == 0) {
         printf("done\n");
     } else {
         printf("error\n");
@@ -65,8 +69,7 @@ int mount_ramdisk() {
     return 0;
 }
 
-int umount_ramdisk() {
-    char *projectName = get_property("projectName");
+int umount_ramdisk(char *projectName) {
     mountPoint = get_mount_point(projectName);
 
     printf("Unmounting %s... ", mountPoint);

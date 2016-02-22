@@ -1,12 +1,9 @@
-//
-// Created by balint on 2016.02.19..
-//
-
 #include <stdio.h>
 #include <string.h>
 #include "stdgc.h"
 #include "config_loader.h"
 #include "installer.h"
+#include "module_loader.h"
 
 typedef struct ConfigLine {
     char *key;
@@ -96,7 +93,7 @@ int get_auto_save() {
     return strcmp(get_property("autoSave"), "true");
 }
 
-int load_config() {
+int load_default_config() {
     char *configDirectory = get_config_directory();
     if (is_installed() != 0) {
         printf("DoOR does not installed on this system.\n");
@@ -132,13 +129,19 @@ int load_config() {
         printf("error\n");
     }
 
+}
+
+int load_project_config() {
+    char *line = NULL;
+    size_t lineLength = 0;
+
     printf("Loading project configuration... ");
     char *projectConfigFile = malloc(strlen(get_current_directory()) + strlen("/DoORConfig.conf") + 1);
     strcpy(projectConfigFile, get_current_directory());
     strcat(projectConfigFile, "/DoORConfig.conf");
     projectConfigFile[strlen(projectConfigFile)] = '\0';
 
-    configFile = fopen(projectConfigFile, "r");
+    FILE *configFile = fopen(projectConfigFile, "r");
     if (configFile != NULL) {
         while (getline(&line, &lineLength, configFile) != -1) {
             ConfigLine *tempLine = new_config_line(line);
@@ -163,6 +166,57 @@ int load_config() {
         printf("error\n");
         return 1;
     }
+}
+
+int load_modules_config() {
+    char *configDirectory = get_config_directory();
+    if (is_installed() != 0) {
+        printf("DoOR does not installed on this system.\n");
+        return 1;
+    }
+    if (configDirectory == NULL) {
+        printf("Error\n");
+        return 1;
+    }
+    char *configFilePath = malloc(strlen(configDirectory) + strlen("modules.conf") + 1);
+    char *line = NULL;
+    size_t lineLength = 0;
+
+    if (configFilePath == NULL) {
+        printf("Error\n");
+        return 1;
+    }
+
+    configFilePath[0] = '\0';
+    strcat(configFilePath, configDirectory);
+    strcat(configFilePath, "modules.conf");
+
+    printf("Loading module configuration...\n");
+    FILE *configFile = fopen(configFilePath, "r");
+    if (configFile != NULL) {
+        while (getline(&line, &lineLength, configFile) != -1) {
+            line[strlen(line) - 1] = '\0';
+            char *newLine = malloc(strlen(line));
+            newLine[0] = '\0';
+            strcpy(newLine, line);
+            printf("Loading %s module config... ", line);
+            if (load_module_config(newLine) == 0) {
+                printf("done\n");
+            } else {
+                printf("error\n");
+            }
+        }
+        fclose(configFile);
+        printf("Modules file successfully loaded.\n");
+    } else {
+        printf("Something went wrong\n");
+    }
+}
+
+int load_config() {
+    load_default_config();
+    load_modules_config();
+    load_project_config();
 }
 
 void show_loaded_config() {

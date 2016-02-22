@@ -42,9 +42,11 @@ char *get_sync_command(char *syncParams, char *source, char *destination, char *
     return syncCommand;
 }
 
-int run_sync(char *projectName, char *syncParams, int invert) {
+int run_sync(char *projectName, char *syncParams, int invert, char *source) {
     char *logDirectory = get_logs_directory();
-    char *source = get_current_directory();
+    if (source == NULL) {
+        source = get_current_directory();
+    }
 
     char *destination = malloc(strlen(get_mount_directory()) + strlen(projectName) + strlen("/") + 1);
     destination[0] = '\0';
@@ -65,15 +67,19 @@ int run_sync(char *projectName, char *syncParams, int invert) {
     }
 }
 
+int sync_module(char *moduleName, char *source) {
+    return run_sync(moduleName, "-av", 0, source);
+}
+
 int sync_directory(char *projectName) {
-    return run_sync(projectName, "-av --delete --recursive --force", 0);
+    return run_sync(projectName, "-av --delete --recursive --force", 0, NULL);
 }
 
 int start_sync(char *projectName) {
-    return run_sync(projectName, "-av", 0);
+    return run_sync(projectName, "-av", 0, NULL);
 }
 
 int stop_sync(char *projectName) {
-    return run_sync(projectName, "-av --delete --recursive --force", 1);
+    return run_sync(projectName, "-av --delete --recursive --force", 1, NULL);
 }
 

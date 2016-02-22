@@ -8,6 +8,7 @@
 #include "ramdisk.h"
 #include "rsync.h"
 #include "stdgc.h"
+#include "module_loader.h"
 
 static int started = 0;
 
@@ -104,7 +105,8 @@ void sync_loop() {
 int bootstrap() {
     if (is_root_user() == 0) {
         load_config();
-        mount_ramdisk();
+        load_modules();
+        mount_ramdisk(get_property("projectName"), NULL);
         start_sync(get_property("projectName"));
         started = 1;
         return 0;
@@ -116,7 +118,8 @@ int bootstrap() {
 
 void tear_down() {
     stop_sync(get_property("projectName"));
-    umount_ramdisk();
+    umount_ramdisk(get_property("projectName"));
+    unload_modules();
     started = 0;
 }
 
