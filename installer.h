@@ -13,6 +13,8 @@ char *get_mount_directory();
 
 void create_project_config();
 
+void create_module_config();
+
 int is_installed();
 
 void install_door();
