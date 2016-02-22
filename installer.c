@@ -39,7 +39,7 @@ char *get_config_directory() {
 char *get_current_directory() {
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        cwd[strlen(cwd)] = '/';
+        strcat(cwd, "/");
         cwd[strlen(cwd)] = '\0';
 
         if (currentDirectory == NULL) {
@@ -195,7 +195,34 @@ void create_project_config() {
     }
 }
 
+void create_module_config() {
+    if (rootDirectory != NULL && confDirectory != NULL) {
+        printf("Creating module configuration file... ");
+        char *configFilePath = malloc(strlen(confDirectory) + strlen("modules.conf") + 1);
+        strcat(configFilePath, confDirectory);
+        strcat(configFilePath, "modules.conf");
+        FILE *file = fopen(configFilePath, "w");
+        if (file != NULL) {
+            fclose(file);
+            printf("done\n");
+        } else {
+            printf("error\n");
+        }
+    }
+}
+
+void copy_door_to_bin() {
+    printf("Copying door to ~/.door/bin... ");
+    if (system("cp ./door ~/.door/bin") == 0) {
+        printf("done\n");
+    } else {
+        printf("error\n");
+    }
+}
+
 void install_door() {
     create_directories();
     create_default_config();
+    create_module_config();
+    copy_door_to_bin();
 }

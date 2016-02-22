@@ -1,6 +1,8 @@
 #ifndef DOOR_RSYNC_H
 #define DOOR_RSYNC_H
 
+int sync_module(char *moduleName, char *source);
+
 int sync_directory(char *projectName);
 
 int start_sync(char *projectName);
