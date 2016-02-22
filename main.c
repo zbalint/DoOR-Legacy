@@ -11,6 +11,7 @@
 #include "module_loader.h"
 
 static int started = 0;
+static int forked = 0;
 
 void show_version();
 
@@ -93,12 +94,24 @@ int main(int argc, char *argv[]) {
 }
 
 void sync_loop() {
-    while (1) {
-        int ret = sync_directory(get_property("projectName"));
-        if (WIFSIGNALED(ret) &&
-            (WTERMSIG(ret) == SIGINT || WTERMSIG(ret) == SIGQUIT))
-            break;
-        sleep((u_int) atol(get_property("syncInterval")));
+    printf("Starting bash shell... \n");
+    if (fork() == 0) {
+        forked = 1;
+        char *command = get_forked_bash_command();
+        if (command != NULL) {
+            system(command);
+        } else {
+            printf("ERROR\n");
+        }
+        exit(0);
+    } else {
+        while (forked == 0) {
+            int ret = sync_directory(get_property("projectName"));
+            if (WIFSIGNALED(ret) &&
+                (WTERMSIG(ret) == SIGINT || WTERMSIG(ret) == SIGQUIT))
+                break;
+            sleep((u_int) atol(get_property("syncInterval")));
+        }
     }
 }
 
@@ -124,7 +137,7 @@ void tear_down() {
 }
 
 void shutdown() {
-    if (started != 0 && is_root_user() == 0 && get_auto_save() == 0) {
+    if (started != 0 && is_root_user() == 0 && get_auto_save() == 0 && forked == 0) {
         tear_down();
     }
 

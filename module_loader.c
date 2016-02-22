@@ -97,12 +97,45 @@ int load_module_config(char *moduleName) {
         if (modulePath != NULL && moduleEnv != NULL && moduleEnvValue != NULL && moduleSize != NULL) {
             add_module(moduleName, modulePath, moduleEnv, moduleEnvValue, moduleSize);
         } else {
-            return 1;
+            return 2;
         }
         return 0;
     } else {
         return 1;
     }
+}
+
+char *get_forked_bash_command() {
+    ModuleNode *iterator = head;
+
+    if (head == NULL) {
+        return NULL;
+    }
+
+    char command[2048];
+    command[0] = '\0';
+    char pathString[1024];
+    pathString[0] = '\0';
+    strcpy(pathString, "PATH=$PATH");
+    for (iterator; iterator != NULL; iterator = iterator->next) {
+        strcat(command, iterator->moduleEnv);
+        strcat(command, "=");
+        strcat(command, iterator->moduleEnvValue);
+        strcat(command, " ");
+        strcat(pathString, ":");
+        strcat(pathString, get_mount_point(iterator->moduleName));
+        strcat(pathString, "bin");
+    }
+
+
+    strcat(command, pathString);
+
+    strcat(command, " bash --norc");
+
+    char *bashCommand = malloc(sizeof(command));
+    bashCommand[0] = '\0';
+    strcpy(bashCommand, command);
+    return bashCommand;
 }
 
 int load_module(ModuleNode *moduleNode) {
@@ -119,20 +152,8 @@ int load_module(ModuleNode *moduleNode) {
         envValue = moduleNode->moduleEnvValue;
     }
 
-    char *setEnvCommand = malloc(
-            strlen("export ") +
-            strlen(moduleNode->moduleEnv) +
-            strlen("=") +
-            strlen(envValue) +
-            1
-    );
-    setEnvCommand[0] = '\0';
-    strcpy(setEnvCommand, "export ");
-    strcat(setEnvCommand, moduleNode->moduleEnv);
-    strcat(setEnvCommand, "=");
-    strcat(setEnvCommand, envValue);
+    moduleNode->moduleEnvValue = envValue;
 
-    system(setEnvCommand);
     return 0;
 }
 
@@ -148,7 +169,9 @@ int load_modules() {
     }
 
     for (iterator; iterator != NULL; iterator = iterator->next) {
-        load_module(iterator);
+        if (load_module(iterator) != 0) {
+            printf("Error while loading %s\n...", iterator->moduleName);
+        }
     }
 
     return 0;

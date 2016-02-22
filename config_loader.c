@@ -136,9 +136,10 @@ int load_project_config() {
     size_t lineLength = 0;
 
     printf("Loading project configuration... ");
-    char *projectConfigFile = malloc(strlen(get_current_directory()) + strlen("/DoORConfig.conf") + 1);
+    char *projectConfigFile = malloc(strlen(get_current_directory()) + strlen("DoORConfig.conf"));
+    projectConfigFile[0] = '\0';
     strcpy(projectConfigFile, get_current_directory());
-    strcat(projectConfigFile, "/DoORConfig.conf");
+    strcat(projectConfigFile, "DoORConfig.conf");
     projectConfigFile[strlen(projectConfigFile)] = '\0';
 
     FILE *configFile = fopen(projectConfigFile, "r");

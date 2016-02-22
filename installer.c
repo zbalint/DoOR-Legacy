@@ -39,7 +39,7 @@ char *get_config_directory() {
 char *get_current_directory() {
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        cwd[strlen(cwd)] = '/';
+        strcat(cwd, "/");
         cwd[strlen(cwd)] = '\0';
 
         if (currentDirectory == NULL) {

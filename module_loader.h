@@ -9,4 +9,6 @@ int load_modules();
 
 int unload_modules();
 
+char *get_forked_bash_command();
+
 #endif //DOOR_MODULE_LOADER_H
